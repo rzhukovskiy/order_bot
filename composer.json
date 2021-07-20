@@ -1,0 +1,20 @@
+{
+  "name": "rzhukovskii/order_bot",
+  "description": "Bot for making orders in telegram",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "rzhukovskii",
+      "email": "zhukovskey@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Orderbot\\": "src/"
+    }
+  },
+  "require": {
+    "telegram-bot/api": "2.*"
+  }
+}
