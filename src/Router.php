@@ -6,28 +6,14 @@ use Exception;
 
 class Router
 {
-    private $defaultController = 'main';
-    private $defaultAction = 'index';
-    private static $instance;
+    private static $defaultController = 'main';
+    private static $defaultAction = 'index';
 
     private function __construct()
     {
-
     }
 
-    /**
-     * @return Router
-     */
-    public static function getInstance()
-    {
-        if (static::$instance == null) {
-            static::$instance = new static();
-        }
-
-        return static::$instance;
-    }
-
-    public function handleRequest()
+    public static function handleRequest()
     {
         if (isset($_GET['r'])) {
             $uri = $_GET['r'];
@@ -40,22 +26,26 @@ class Router
         $_SERVER['REQUEST_URI'] = $query;
         list($controller, $action) = array_pad(explode('/', trim($uri, '/')), 2, null);
         if (empty($controller)) {
-            $controller = $this->defaultController;
+            $controller = static::$defaultController;
         }
         if (empty($action)) {
-            $action = $this->defaultAction;
+            $action = static::$defaultAction;
         }
 
         $controllerFull = 'Orderbot\\Controllers\\' . ucfirst($controller) . 'Controller';
         $actionFull     = 'action' . ucfirst($action);
 
+        if (!class_exists($controllerFull) || !method_exists($controllerFull, $actionFull)) {
+            http_response_code(404);
+            die();
+        }
         try {
             /** @var BaseController $controllerObject */
             $controllerObject = new $controllerFull($controller, $action);
             $controllerObject->$actionFull();
         } catch (Exception $e) {
-            http_response_code(404);
-            die();
+            print_r($e);
+            die;
         }
     }
 }

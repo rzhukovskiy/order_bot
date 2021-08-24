@@ -1,11 +1,12 @@
 <?php
 
+use Orderbot\BaseModel;
 use Orderbot\Router;
 
 require '../vendor/autoload.php';
 try {
-    $router = Router::getInstance();
-    $router->handleRequest();
+    BaseModel::init();
+    Router::handleRequest();
 } catch(Exception $ex) {
     print_r($ex);die;
 }

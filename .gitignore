@@ -1,7 +1,7 @@
 # JetBrains IDE
 .idea/
 
-/bot.local.wxtask
-/bot.local.wxproj
+/*.wxtask
+/*.wxproj
 /vendor
 /composer.lock
