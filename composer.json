@@ -16,6 +16,7 @@
   },
   "require": {
     "telegram-bot/api": "2.*",
-    "ext-pdo": "*"
+    "ext-pdo": "*",
+    "ext-json": "*"
   }
 }

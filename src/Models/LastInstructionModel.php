@@ -3,16 +3,16 @@
 namespace Orderbot\Models;
 
 use Orderbot\BaseModel;
-use Orderbot\Entities\CommandEntity;
+use Orderbot\Entities\InstructionEntity;
 use PDO;
 
-class LastCommandModel extends BaseModel
+class LastInstructionModel extends BaseModel
 {
-    public static $nameTable = 'last_command';
+    public static $nameTable = 'last_instruction';
 
     /**
      * @param int $chatId
-     * @return CommandEntity
+     * @return InstructionEntity
      */
     public static function getByUser($chatId)
     {
@@ -25,8 +25,10 @@ class LastCommandModel extends BaseModel
         $res = null;
         if ($stmt->rowCount()) {
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            $res = CommandModel::getById($row['command_id']);
-            $res->appendParamsFromString($row['params']);
+            $res = InstructionModel::getById($row['command_id']);
+            if ($row['params']) {
+                $res->appendParamsFromString($row['params']);
+            }
             $res->completed = $row['completed'];
         }
 

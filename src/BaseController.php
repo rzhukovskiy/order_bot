@@ -26,17 +26,4 @@ class BaseController
         header($url);
         exit;
     }
-
-    public function render($view, $params = null)
-    {
-        ob_start();
-        if (is_array($params)) {
-            extract($params);
-        }
-        require 'views/' . $view . '.php';
-        $content = ob_get_contents();
-        ob_end_clean();
-
-        require 'views/templates/' . $this->template . '.php';
-    }
 }

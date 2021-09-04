@@ -3,39 +3,23 @@
 namespace Orderbot\Services;
 
 use Exception;
-use Orderbot\Entities\UserEntity;
-use Orderbot\Models\UserModel;
+use Orderbot\Entities\ExpenseEntity;
+use Orderbot\Models\ExpenseModel;
 use Orderbot\Result;
 
-class UserService
+class ExpenseService
 {
-    /**
-     * @return int
-     */
-    public static function getCurrentId(): int
-    {
-        return 1;
-    }
-
-    /**
-     * @return UserEntity
-     */
-    public static function getCurrent(): UserEntity
-    {
-        return UserModel::getById(self::getCurrentId());
-    }
-
     /**
      * @param array $data
      * @return Result
      */
     public function create(array $data): Result
     {
-        $entity = new UserEntity($data);
+        $expense = new ExpenseEntity($data);
         try {
-            $entity->save();
+            $expense->save();
             $res = new Result([
-                'message' => "Юнит {$entity->name} создан",
+                'message' => "Расход {$expense->name} создан",
             ]);
         } catch (Exception $ex) {
             $res = new Result([
@@ -51,12 +35,12 @@ class UserService
      */
     public function update(array $data): Result
     {
-        $entity = new UserEntity($data);
+        $expense = new ExpenseEntity($data);
 
         try {
-            $entity->save();
+            $expense->save();
             $res = new Result([
-                'message' => "Юнит {$entity->name} изменен",
+                'message' => "Расход {$expense->name} изменен",
             ]);
         } catch (Exception $ex) {
             $res = new Result([
@@ -74,12 +58,12 @@ class UserService
     public function delete(array $data): Result
     {
         if (isset($data['id'])) {
-            $entity = UserModel::getById($data['id']);
+            $expense = ExpenseModel::getById($data['id']);
 
             try {
-                $entity->delete();
+                $expense->delete();
                 $res = new Result([
-                    'message' => "Юнит {$entity->name} удален",
+                    'message' => "Расход {$expense->name} удален",
                 ]);
             } catch (Exception $ex) {
                 $res = new Result([
@@ -96,12 +80,13 @@ class UserService
     }
 
     /**
+     * @param array $data
      * @return Result
      */
-    public function search(): Result
+    public function search(array $data): Result
     {
         return new Result([
-            'result' => UserModel::getAll(),
+            'result' => ExpenseModel::getAllActiveByGroupId($data),
         ]);
     }
 }

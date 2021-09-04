@@ -29,23 +29,25 @@ class BaseModel
     }
 
     /**
-     * @param $data
-     * @return string
+     * @param array $data
+     * @return int
      */
-    public static function save($data)
+    public static function save(array $data): int
     {
-        $columns = implode("`, `", array_keys($data));
-        $values  = implode(", :", array_keys($data));
+        if (isset($data['id'])) {
+            $updates = [];
+            foreach ($data as $name => $value) {
+                $updates[] = "`$name` = :{$name}";
+            }
+            $data['id1'] = $data['id'];
+            $updates = implode(", ", $updates);
+            $stmt = self::$pdo->prepare("UPDATE `" . static::$nameTable . "` SET $updates WHERE id = :id1");
+        } else {
+            $columns = implode("`, `", array_keys($data));
+            $values  = implode(", :", array_keys($data));
 
-        $updates = [];
-        foreach ($data as $name => $value) {
-            $data[$name . '1'] = $value;
-            $updates[] = "`$name` = :{$name}1";
+            $stmt = self::$pdo->prepare("INSERT INTO `" . static::$nameTable . "` (`$columns`) VALUES (:$values)");
         }
-        $updates = implode(", ", $updates);
-
-        $stmt = self::$pdo->prepare("INSERT INTO " . static::$nameTable . " (`$columns`) VALUES (:$values)" .
-            " ON DUPLICATE KEY UPDATE $updates");
         $stmt->execute($data);
 
         if (empty($data['id'])) {
@@ -56,10 +58,10 @@ class BaseModel
     }
 
     /**
-     * @param $params
+     * @param array $params
      * @return bool
      */
-    public static function delete($params)
+    public static function delete(array $params): bool
     {
         $updates = [];
         foreach ($params as $name => $value) {
@@ -68,10 +70,10 @@ class BaseModel
         $updates = implode(", ", $updates);
 
         if (empty($params['id'])) {
-            $stmt = self::$pdo->prepare("DELETE FROM " . static::$nameTable . " WHERE $updates");
+            $stmt = self::$pdo->prepare("DELETE FROM `" . static::$nameTable . "` WHERE $updates");
             return $stmt->execute($params);
         } else {
-            $stmt = self::$pdo->prepare("DELETE FROM " . static::$nameTable . " WHERE id = :id");
+            $stmt = self::$pdo->prepare("DELETE FROM `" . static::$nameTable . "` WHERE id = :id");
             return $stmt->execute([
                 'id' => $params['id'],
             ]);

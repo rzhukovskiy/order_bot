@@ -3,35 +3,19 @@
 namespace Orderbot\Services;
 
 use Exception;
-use Orderbot\Entities\UserEntity;
-use Orderbot\Models\UserModel;
+use Orderbot\Entities\UnitEntity;
+use Orderbot\Models\UnitModel;
 use Orderbot\Result;
 
-class UserService
+class UnitService
 {
-    /**
-     * @return int
-     */
-    public static function getCurrentId(): int
-    {
-        return 1;
-    }
-
-    /**
-     * @return UserEntity
-     */
-    public static function getCurrent(): UserEntity
-    {
-        return UserModel::getById(self::getCurrentId());
-    }
-
     /**
      * @param array $data
      * @return Result
      */
     public function create(array $data): Result
     {
-        $entity = new UserEntity($data);
+        $entity = new UnitEntity($data);
         try {
             $entity->save();
             $res = new Result([
@@ -51,7 +35,7 @@ class UserService
      */
     public function update(array $data): Result
     {
-        $entity = new UserEntity($data);
+        $entity = new UnitEntity($data);
 
         try {
             $entity->save();
@@ -74,7 +58,7 @@ class UserService
     public function delete(array $data): Result
     {
         if (isset($data['id'])) {
-            $entity = UserModel::getById($data['id']);
+            $entity = UnitModel::getById($data['id']);
 
             try {
                 $entity->delete();
@@ -101,7 +85,7 @@ class UserService
     public function search(): Result
     {
         return new Result([
-            'result' => UserModel::getAll(),
+            'result' => UnitModel::getAllActive(),
         ]);
     }
 }

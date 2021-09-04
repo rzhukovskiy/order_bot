@@ -3,39 +3,23 @@
 namespace Orderbot\Services;
 
 use Exception;
-use Orderbot\Entities\UserEntity;
-use Orderbot\Models\UserModel;
+use Orderbot\Entities\EquipmentEntity;
+use Orderbot\Models\EquipmentModel;
 use Orderbot\Result;
 
-class UserService
+class EquipmentService
 {
-    /**
-     * @return int
-     */
-    public static function getCurrentId(): int
-    {
-        return 1;
-    }
-
-    /**
-     * @return UserEntity
-     */
-    public static function getCurrent(): UserEntity
-    {
-        return UserModel::getById(self::getCurrentId());
-    }
-
     /**
      * @param array $data
      * @return Result
      */
     public function create(array $data): Result
     {
-        $entity = new UserEntity($data);
+        $entity = new EquipmentEntity($data);
         try {
             $entity->save();
             $res = new Result([
-                'message' => "Юнит {$entity->name} создан",
+                'message' => "Оборудование $entity->name создано",
             ]);
         } catch (Exception $ex) {
             $res = new Result([
@@ -51,12 +35,12 @@ class UserService
      */
     public function update(array $data): Result
     {
-        $entity = new UserEntity($data);
+        $entity = new EquipmentEntity($data);
 
         try {
             $entity->save();
             $res = new Result([
-                'message' => "Юнит {$entity->name} изменен",
+                'message' => "Оборудование $entity->name изменено",
             ]);
         } catch (Exception $ex) {
             $res = new Result([
@@ -74,12 +58,12 @@ class UserService
     public function delete(array $data): Result
     {
         if (isset($data['id'])) {
-            $entity = UserModel::getById($data['id']);
+            $entity = EquipmentModel::getById($data['id']);
 
             try {
                 $entity->delete();
                 $res = new Result([
-                    'message' => "Юнит {$entity->name} удален",
+                    'message' => "Оборудование $entity->name удалено",
                 ]);
             } catch (Exception $ex) {
                 $res = new Result([
@@ -101,7 +85,7 @@ class UserService
     public function search(): Result
     {
         return new Result([
-            'result' => UserModel::getAll(),
+            'result' => EquipmentModel::getAllActive(),
         ]);
     }
 }

@@ -3,18 +3,18 @@
 namespace Orderbot\Controllers;
 
 use Orderbot\BaseController;
+use Orderbot\Request;
 use Orderbot\Services\CommandService;
-use Orderbot\Services\ChatService;
-use Orderbot\Services\UserService;
 
 class MainController extends BaseController
 {
     public function actionIndex()
     {
-        $result = CommandService::handleText();
+        $result = CommandService::handleText(
+            Request::extractCommand(),
+            Request::extractParams()
+        );
 
-        $this->render($result->getTemplate(), [
-            'result' => $result->getData(),
-        ]);
+        $result->render();
     }
 }

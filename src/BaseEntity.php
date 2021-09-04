@@ -27,11 +27,17 @@ class BaseEntity
         $this->data[$name] = $value;
     }
 
+    public function deleteProperty($name)
+    {
+        $name = $this->fromCamelCase($name);
+        unset($this->data[$name]);
+    }
+
     /**
      * @param string $input
      * @return string
      */
-    private function toCamelCase($input)
+    private function toCamelCase(string $input): string
     {
         return lcfirst(str_replace('_', '', ucwords($input, '_')));
     }
@@ -40,7 +46,8 @@ class BaseEntity
      * @param string $input
      * @return string
      */
-    private function fromCamelCase($input) {
+    private function fromCamelCase(string $input): string
+    {
         $pattern = '!([A-Z][A-Z0-9]*(?=$|[A-Z][a-z0-9])|[A-Za-z][a-z0-9]+)!';
         preg_match_all($pattern, $input, $matches);
         $res = $matches[0];

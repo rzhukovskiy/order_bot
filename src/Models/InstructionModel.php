@@ -3,16 +3,16 @@
 namespace Orderbot\Models;
 
 use Orderbot\BaseModel;
-use Orderbot\Entities\CommandEntity;
+use Orderbot\Entities\InstructionEntity;
 use PDO;
 
-class CommandModel extends BaseModel
+class InstructionModel extends BaseModel
 {
-    public static $nameTable = 'command';
+    public static $nameTable = 'instruction';
 
     /**
      * @param int $id
-     * @return CommandEntity
+     * @return InstructionEntity
      */
     public static function getById($id)
     {
@@ -24,7 +24,7 @@ class CommandModel extends BaseModel
 
         $res = null;
         if ($stmt->rowCount()) {
-            $res = new CommandEntity($stmt->fetch(PDO::FETCH_ASSOC));
+            $res = new InstructionEntity($stmt->fetch(PDO::FETCH_ASSOC));
         }
 
         return $res;
@@ -32,7 +32,7 @@ class CommandModel extends BaseModel
 
     /**
      * @param string $name
-     * @return CommandEntity
+     * @return InstructionEntity
      */
     public static function getByName($name)
     {
@@ -44,7 +44,7 @@ class CommandModel extends BaseModel
 
         $res = null;
         if ($stmt->rowCount()) {
-            $res = new CommandEntity($stmt->fetch(PDO::FETCH_ASSOC));
+            $res = new InstructionEntity($stmt->fetch(PDO::FETCH_ASSOC));
         }
 
         return $res;
@@ -52,7 +52,7 @@ class CommandModel extends BaseModel
 
     /**
      * @param int $parentId
-     * @return CommandEntity[]
+     * @return InstructionEntity[]
      */
     public static function getByParentAndRole($parentId, $role)
     {
@@ -65,7 +65,7 @@ class CommandModel extends BaseModel
 
         $res = [];
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $res[] = new CommandEntity($row);
+            $res[] = new InstructionEntity($row);
         }
         return $res;
     }

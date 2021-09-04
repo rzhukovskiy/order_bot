@@ -3,39 +3,23 @@
 namespace Orderbot\Services;
 
 use Exception;
-use Orderbot\Entities\UserEntity;
-use Orderbot\Models\UserModel;
+use Orderbot\Entities\GroupEntity;
+use Orderbot\Models\GroupModel;
 use Orderbot\Result;
 
-class UserService
+class GroupService
 {
-    /**
-     * @return int
-     */
-    public static function getCurrentId(): int
-    {
-        return 1;
-    }
-
-    /**
-     * @return UserEntity
-     */
-    public static function getCurrent(): UserEntity
-    {
-        return UserModel::getById(self::getCurrentId());
-    }
-
     /**
      * @param array $data
      * @return Result
      */
     public function create(array $data): Result
     {
-        $entity = new UserEntity($data);
+        $group = new GroupEntity($data);
         try {
-            $entity->save();
+            $group->save();
             $res = new Result([
-                'message' => "Юнит {$entity->name} создан",
+                'message' => "Группа расходов {$group->name} создана",
             ]);
         } catch (Exception $ex) {
             $res = new Result([
@@ -51,12 +35,12 @@ class UserService
      */
     public function update(array $data): Result
     {
-        $entity = new UserEntity($data);
+        $group = new GroupEntity($data);
 
         try {
-            $entity->save();
+            $group->save();
             $res = new Result([
-                'message' => "Юнит {$entity->name} изменен",
+                'message' => "Группа {$group->name} изменена",
             ]);
         } catch (Exception $ex) {
             $res = new Result([
@@ -74,12 +58,12 @@ class UserService
     public function delete(array $data): Result
     {
         if (isset($data['id'])) {
-            $entity = UserModel::getById($data['id']);
+            $group = GroupModel::getById($data['id']);
 
             try {
-                $entity->delete();
+                $group->delete();
                 $res = new Result([
-                    'message' => "Юнит {$entity->name} удален",
+                    'message' => "Группа {$group->name} удалена",
                 ]);
             } catch (Exception $ex) {
                 $res = new Result([
@@ -101,7 +85,7 @@ class UserService
     public function search(): Result
     {
         return new Result([
-            'result' => UserModel::getAll(),
+            'result' => GroupModel::getAllActive(),
         ]);
     }
 }
