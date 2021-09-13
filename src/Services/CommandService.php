@@ -21,11 +21,11 @@ class CommandService
     private static $firstCommand = 'start';
 
     /**
-     * @param string $instructionText
+     * @param null|string $instructionText
      * @param null|array $params
      * @return Result
      */
-    public static function handleText(string $instructionText, ?array $params): Result
+    public static function handleText(?string $instructionText, ?array $params): Result
     {
         $instructionText = $instructionText ?: static::$firstCommand;
         $chatId = ChatService::getCurrentId();
