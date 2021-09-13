@@ -13,11 +13,11 @@ class BaseModel
     public static function init()
     {
         if ($_SERVER['HTTP_HOST'] == 'bot.local') {
-            $dsn = 'mysql:dbname=orderbot;host=127.0.0.1';
+            $dsn = 'mysql:dbname=orderbot;host=127.0.0.1;charset=utf8';
             $user = 'root';
             $password = '11223344';
         } else {
-            $dsn = 'mysql:dbname=orderbot;host=127.0.0.1';
+            $dsn = 'mysql:dbname=orderbot;host=127.0.0.1;charset=utf8';
             $user = 'jukovskii';
             $password = 'VF84nnaes!';
         }
