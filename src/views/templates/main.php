@@ -6,7 +6,7 @@
 <!doctype html>
 <html>
 <head>
-    <meta charset="UTF-8" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <title>Orderbot</title>
 </head>
 <body>
