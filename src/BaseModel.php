@@ -12,9 +12,15 @@ class BaseModel
 
     public static function init()
     {
-        $dsn = 'mysql:dbname=orderbot;host=127.0.0.1';
-        $user = 'root';
-        $password = '11223344';
+        if ($_SERVER['HTTP_HOST'] == 'bot.local') {
+            $dsn = 'mysql:dbname=orderbot;host=127.0.0.1';
+            $user = 'root';
+            $password = '11223344';
+        } else {
+            $dsn = 'mysql:dbname=orderbot;host=127.0.0.1';
+            $user = 'jukovskii';
+            $password = 'VF84nnaes!';
+        }
 
         $opt = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
