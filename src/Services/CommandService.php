@@ -40,7 +40,7 @@ class CommandService
             $currentInstruction = $previousInstruction;
         }
 
-        if (count($params)) {
+        if ($params && count($params)) {
             $currentInstruction->appendParams($params);
         }
 
