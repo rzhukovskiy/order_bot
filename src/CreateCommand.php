@@ -23,6 +23,7 @@ class CreateCommand implements Interfaces\Command
 
         if ($nextStep) {
             $res = new Result([
+                'message' => $nextStep->description,
                 'step' => $nextStep,
             ]);
 

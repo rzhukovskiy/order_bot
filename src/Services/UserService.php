@@ -35,7 +35,7 @@ class UserService
         try {
             $entity->save();
             $res = new Result([
-                'message' => "Юнит {$entity->name} создан",
+                'message' => "Юзер {$entity->name} создан",
             ]);
         } catch (Exception $ex) {
             $res = new Result([
@@ -56,7 +56,7 @@ class UserService
         try {
             $entity->save();
             $res = new Result([
-                'message' => "Юнит {$entity->name} изменен",
+                'message' => "Юзер {$entity->name} изменен",
             ]);
         } catch (Exception $ex) {
             $res = new Result([
@@ -79,7 +79,7 @@ class UserService
             try {
                 $entity->delete();
                 $res = new Result([
-                    'message' => "Юнит {$entity->name} удален",
+                    'message' => "Юзер {$entity->name} удален",
                 ]);
             } catch (Exception $ex) {
                 $res = new Result([

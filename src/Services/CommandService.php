@@ -3,10 +3,12 @@
 namespace Orderbot\Services;
 
 use Orderbot\Entities\InstructionEntity;
+use Orderbot\Entities\InstructionStepEntity;
 use Orderbot\Interfaces\Command;
 use Orderbot\Models\InstructionModel;
 use Orderbot\Models\InstructionStepModel;
 use Orderbot\Models\LastInstructionModel;
+use Orderbot\Request;
 use Orderbot\Result;
 
 class CommandService
@@ -21,28 +23,40 @@ class CommandService
     private static $firstCommand = 'start';
 
     /**
-     * @param null|string $instructionText
+     * @param null|string $text
      * @param null|array $params
      * @return Result
      */
-    public static function handleText(?string $instructionText, ?array $params): Result
+    public static function handleText(?string $text, ?array $params): Result
     {
-        $instructionText = $instructionText ?: static::$firstCommand;
-        $chatId = ChatService::getCurrentId();
+        $text = $text ?? static::$firstCommand;
+        $chatId = Request::extractChatId();
 
-        $previousInstruction = LastInstructionModel::getByUser($chatId);
-        $currentInstruction = InstructionModel::getByName($instructionText);
+        $previousInstruction = LastInstructionModel::getByChatId($chatId);
+        if ($text[0] == '/') {
+            $currentInstruction = InstructionModel::getByName($text, UserService::getCurrent()->role);
+        } else {
+            if ($previousInstruction && !$previousInstruction->completed) {
+                $currentInstruction = $previousInstruction;
+                $nextStep = $currentInstruction->getNextStep();
+                if ($nextStep->type == InstructionStepEntity::TYPE_TEXT) {
+                    $params[$nextStep->name] = $text;
+                }
+            } else {
+                $currentInstruction = InstructionModel::getByDisplayName($text, UserService::getCurrent()->role);
+            }
+        }
 
-        $continue = $previousInstruction
-            && $currentInstruction->id == $previousInstruction->id
-            && !$previousInstruction->completed;
-        if ($continue) {
-            $currentInstruction = $previousInstruction;
+        if (!$currentInstruction) {
+            return new Result([
+                'message' => 'На этом наши полномочия все',
+            ]);
         }
 
         if ($params && count($params)) {
             $currentInstruction->appendParams($params);
         }
+        $currentInstruction->chatId = $chatId;
 
         $command = static::createCommandFromInstruction($currentInstruction);
 

@@ -9,6 +9,7 @@ use Orderbot\Result;
 
 /**
  * @property integer    $id
+ * @property integer    $chatId
  * @property integer    $parentId
  * @property integer    $nextId
  * @property integer    $type
@@ -55,6 +56,7 @@ class InstructionEntity extends BaseEntity
     {
         $res = null;
         $lastParamId = count($this->params) - 1;
+
         if ($lastParamId >= 0) {
             $name = array_keys($this->params)[$lastParamId];
             $res = InstructionStepModel::getByName($this->id, $name);
@@ -85,7 +87,7 @@ class InstructionEntity extends BaseEntity
     public function saveAsLastInstruction(): int
     {
         $dataToSave = [
-            'chat_id' => 1,
+            'chat_id' => $this->chatId,
             'command_id' => $this->id,
             'params' => serialize($this->params),
             'created_at' => time(),

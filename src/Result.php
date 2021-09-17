@@ -2,20 +2,19 @@
 
 namespace Orderbot;
 
+use Orderbot\Entities\InstructionEntity;
 use Orderbot\Entities\InstructionStepEntity;
+use TelegramBot\Api\BaseType;
+use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
+use TelegramBot\Api\Types\ReplyKeyboardMarkup;
 
 class Result
 {
     const FIELD_MESSAGE = 'message';
-    const FIELD_RESULT  = 'result';
-    const FIELD_STEP    = 'step';
+    const FIELD_RESULT = 'result';
+    const FIELD_STEP = 'step';
+    const FIELD_MAIN = 'is_main';
 
-    private static $paramViews = [
-        InstructionStepEntity::TYPE_TEXT => 'text',
-        InstructionStepEntity::TYPE_LIST => 'list',
-        InstructionStepEntity::TYPE_METHOD => 'method',
-        InstructionStepEntity::TYPE_NEXT => 'list',
-    ];
     /**
      * @var array
      */
@@ -36,7 +35,11 @@ class Result
     public function merge(Result $newResult)
     {
         foreach ($newResult->getData() as $key => $value) {
-            $this->data[$key] = $value;
+            if ($key == self::FIELD_MESSAGE) {
+                $this->data[$key] .= "\n\n" . $value;
+            } else {
+                $this->data[$key] = $value;
+            }
         }
     }
 
@@ -59,7 +62,7 @@ class Result
     /**
      * @return string|null
      */
-    private function getMessage(): ?string
+    public function getMessage(): ?string
     {
         return $this->data[self::FIELD_MESSAGE] ?? null;
     }
@@ -73,28 +76,73 @@ class Result
     }
 
     /**
-     *
+     * @return bool
      */
-    public function render()
+    private function isMain(): bool
     {
-        ob_start();
+        return $this->data[self::FIELD_MAIN] ?? false;
+    }
 
-        $message = $this->getMessage();
-        if ($message) {
-            require 'views/message.php';
-        }
-
+    /**
+     * @return ReplyKeyboardMarkup
+     */
+    public function getKeyboard(): ?BaseType
+    {
         $step = $this->getStep();
         if ($step) {
-            require 'views/' . self::$paramViews[$step->type] . '.php';
+            switch ($step->type) {
+                case InstructionStepEntity::TYPE_LIST:
+                case InstructionStepEntity::TYPE_NEXT:
+                    $array = [[]];
+                    $listButtons = json_decode($step->content, true);
+                    foreach ($listButtons as $value => $description) {
+                        $array[] = [[
+                            'text' => $description,
+                            'callback_data' => json_encode([
+                                $step->name => $value,
+                            ]),
+                        ]];
+                    }
+                    return new InlineKeyboardMarkup($array);
+                case InstructionStepEntity::TYPE_METHOD:
+                    $result = $this->getResult();
+                    $array = [[]];
+                    foreach ($result as $item) {
+                        $array[] = [[
+                            'text' => $item->getDescription(),
+                            'callback_data' => json_encode([
+                                $step->name => $item->getAction(),
+                            ]),
+                        ]];
+                    }
+                    return new InlineKeyboardMarkup($array);
+                default:
+                    return null;
+            }
         } else {
-            require 'views/navigation.php';
+            /**
+             * @var $result InstructionEntity[]
+             */
+            $result = $this->getResult();
+            $array = [[]];
+            if ($this->isMain()) {
+                $rowNum = 0;
+                for ($i = 0; $i < count($result); $i++) {
+                    $array[$rowNum][] = $result[$i]->displayName;
+                    if (($i + 1) % 3 == 0) {
+                        $rowNum++;
+                    }
+                }
+                return new ReplyKeyboardMarkup($array, true, true);
+            } else {
+                foreach ($result as $command) {
+                    $array[] = [[
+                        'text' => $command->displayName,
+                        'callback_data' => json_encode(['instruction' => $command->name]),
+                    ]];
+                }
+                return new InlineKeyboardMarkup($array);
+            }
         }
-        require 'views/footer.php';
-
-        $content = ob_get_contents();
-        ob_end_clean();
-
-        require 'views/templates/' . $this->template . '.php';
     }
 }

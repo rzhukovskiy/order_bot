@@ -14,7 +14,7 @@ class InstructionModel extends BaseModel
      * @param int $id
      * @return InstructionEntity
      */
-    public static function getById($id)
+    public static function getById(int $id): ?InstructionEntity
     {
         $stmt = self::$pdo->prepare("SELECT * FROM " . self::$nameTable .
             " WHERE id = :id");
@@ -32,14 +32,38 @@ class InstructionModel extends BaseModel
 
     /**
      * @param string $name
+     * @param int $role
      * @return InstructionEntity
      */
-    public static function getByName($name)
+    public static function getByName(string $name, int $role): ?InstructionEntity
     {
         $stmt = self::$pdo->prepare("SELECT * FROM " . self::$nameTable .
-            " WHERE name = :name");
+            " WHERE name = :name AND role = :role");
         $stmt->execute([
             'name' => $name,
+            'role' => $role,
+        ]);
+
+        $res = null;
+        if ($stmt->rowCount()) {
+            $res = new InstructionEntity($stmt->fetch(PDO::FETCH_ASSOC));
+        }
+
+        return $res;
+    }
+
+    /**
+     * @param string $name
+     * @param int $role
+     * @return InstructionEntity
+     */
+    public static function getByDisplayName(string $name, int $role): ?InstructionEntity
+    {
+        $stmt = self::$pdo->prepare("SELECT * FROM " . self::$nameTable .
+            " WHERE display_name = :name AND role = :role");
+        $stmt->execute([
+            'name' => $name,
+            'role' => $role,
         ]);
 
         $res = null;
@@ -52,15 +76,16 @@ class InstructionModel extends BaseModel
 
     /**
      * @param int $parentId
+     * @param int $role
      * @return InstructionEntity[]
      */
-    public static function getByParentAndRole($parentId, $role)
+    public static function getByParentAndRole(int $parentId, int $role): array
     {
         $stmt = self::$pdo->prepare("SELECT * FROM " . self::$nameTable .
             " WHERE `parent_id` = :parent_id AND role = :role ORDER BY `order`");
         $stmt->execute([
             'parent_id' => $parentId,
-            'role' => $role
+            'role' => $role,
         ]);
 
         $res = [];

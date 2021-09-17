@@ -1,1 +1,0 @@
-<a href='/?command=start'>Начало</a><br />

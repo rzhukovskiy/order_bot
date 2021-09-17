@@ -18,9 +18,12 @@ class NavigateCommand implements Interfaces\Command
      */
     public function execute(): Result
     {
+        $this->instruction->completed = true;
         $this->instruction->saveAsLastInstruction();
 
         return new Result([
+            'is_main' => !$this->instruction->parentId,
+            'message' => 'Что делаем',
             'result' => InstructionModel::getByParentAndRole(
                 $this->instruction->id,
                 UserService::getCurrent()->role

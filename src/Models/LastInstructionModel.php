@@ -14,7 +14,7 @@ class LastInstructionModel extends BaseModel
      * @param int $chatId
      * @return InstructionEntity
      */
-    public static function getByUser($chatId)
+    public static function getByChatId($chatId)
     {
         $stmt = self::$pdo->prepare("SELECT * FROM " . self::$nameTable .
             " WHERE chat_id = :chat_id ORDER BY created_at DESC");
