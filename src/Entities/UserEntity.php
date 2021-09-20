@@ -8,6 +8,7 @@ use Orderbot\Models\UserModel;
 /**
  * @property integer    $id
  * @property integer    $role
+ * @property integer    $chatId
  * @property string     $name
  */
 class UserEntity extends BaseEntity
@@ -19,7 +20,7 @@ class UserEntity extends BaseEntity
     const ROLE_DRIVER = 5;
     const ROLE_BLOCKED = 6;
 
-    private static $roleNames = [
+    public static $roleNames = [
         self::ROLE_ADMIN => 'Админ',
         self::ROLE_MANAGER => 'Менеджер',
         self::ROLE_FINANCE => 'Бухгалтер',

@@ -9,12 +9,14 @@ use Orderbot\Result;
 
 class UserService
 {
+    private static $current;
+
     /**
-     * @return int
+     * @param int $chatId
      */
-    public static function getCurrentId(): int
+    public static function setCurrentByChatId(int $chatId)
     {
-        return 1;
+        static::$current = UserModel::getByChatId($chatId);
     }
 
     /**
@@ -22,7 +24,7 @@ class UserService
      */
     public static function getCurrent(): UserEntity
     {
-        return UserModel::getById(self::getCurrentId());
+        return static::$current;
     }
 
     /**

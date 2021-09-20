@@ -15,14 +15,12 @@ class Result
     const FIELD_STEP = 'step';
     const FIELD_MAIN = 'is_main';
 
+    const ROW_SIZE = 3;
+
     /**
      * @var array
      */
     private $data;
-    /**
-     * @var string
-     */
-    private $template = 'main';
 
     public function __construct($data)
     {
@@ -132,17 +130,23 @@ class Result
                 $rowNum = 0;
                 for ($i = 0; $i < count($result); $i++) {
                     $array[$rowNum][] = $result[$i]->displayName;
-                    if (($i + 1) % 3 == 0) {
+                    if (($i + 1) % self::ROW_SIZE == 0) {
                         $rowNum++;
                     }
                 }
                 return new ReplyKeyboardMarkup($array, true, true);
             } else {
+                $rowNum = 0;
+                $i = 0;
                 foreach ($result as $command) {
-                    $array[] = [[
+                    $array[$rowNum][] = [
                         'text' => $command->displayName,
                         'callback_data' => json_encode(['instruction' => $command->name]),
-                    ]];
+                    ];
+                    if (($i + 1) % self::ROW_SIZE == 0) {
+                        $rowNum++;
+                    }
+                    $i++;
                 }
                 return new InlineKeyboardMarkup($array);
             }

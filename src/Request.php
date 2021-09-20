@@ -9,11 +9,13 @@ class Request
     const INSTRUCTION_FIELD = 'instruction';
 
     /** @var string */
-    private $chatId = null;
+    private $chatId;
     /** @var string */
     private $text = null;
     /** @var array */
     private $params = null;
+    /** @var string */
+    private $username = null;
 
     public function __construct(Update $update) {
         $message = $update->getMessage();
@@ -23,10 +25,14 @@ class Request
             $this->chatId = $message->getChat()->getId();
             $text = $message->getText();
             $this->text = $text;
+            $this->username = $message->getFrom()->getFirstName() . ' ' .
+                $message->getFrom()->getLastName();
         } else {
             $this->chatId = $callback->getFrom()->getId();
             $data = json_decode($callback->getData(), true);
             $this->params = $data;
+            $this->username = $callback->getFrom()->getFirstName() . ' ' .
+                $callback->getFrom()->getLastName();
         }
     }
 
@@ -52,5 +58,13 @@ class Request
     public function extractChatId():?string
     {
         return $this->chatId;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getUserName():?string
+    {
+        return $this->username;
     }
 }

@@ -62,10 +62,14 @@ class CommandService
         }
 
         $currentInstruction->chatId = $chatId;
-
         return self::executeInstruction($currentInstruction, $params);
     }
 
+    /**
+     * @param InstructionEntity $instruction
+     * @param array|null $params
+     * @return Result
+     */
     public static function executeInstruction(InstructionEntity $instruction, ?array $params): Result
     {
         if ($params && count($params)) {
@@ -75,6 +79,17 @@ class CommandService
         $command = static::createCommandFromInstruction($instruction);
 
         return $command->execute();
+    }
+
+    /**
+     * @param array $data
+     * @return Result
+     */
+    public function cancel(array $data): Result
+    {
+        return new Result([
+            'message' => 'Команда отменена',
+        ]);
     }
 
     /**
