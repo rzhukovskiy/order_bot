@@ -20,30 +20,38 @@ class CommandService
         self::TYPE_NAVIGATION   => 'navigate',
         self::TYPE_CREATION     => 'create',
     ];
-    private static $firstCommand = 'start';
 
     /**
-     * @param null|string $text
-     * @param null|array $params
+     * @param Request $request
      * @return Result
      */
-    public static function handleText(?string $text, ?array $params): Result
+    public static function handleRequest(Request $request): Result
     {
-        $text = $text ?? static::$firstCommand;
-        $chatId = Request::extractChatId();
-
+        $chatId = $request->extractChatId();
         $previousInstruction = LastInstructionModel::getByChatId($chatId);
+        $isPreviousInstructionCompleted = !$previousInstruction || $previousInstruction->completed;
+
+        $params = $request->extractParams();
+        if (isset($params[Request::INSTRUCTION_FIELD])) {
+            $text = $params[Request::INSTRUCTION_FIELD];
+            unset($params[Request::INSTRUCTION_FIELD]);
+        } else {
+            $text = $request->extractText();
+        }
+
         if ($text[0] == '/') {
             $currentInstruction = InstructionModel::getByName($text, UserService::getCurrent()->role);
         } else {
-            if ($previousInstruction && !$previousInstruction->completed) {
+            $currentInstruction = !$text ? null : InstructionModel::getByDisplayName($text, UserService::getCurrent()->role);
+            if (!$currentInstruction && !$isPreviousInstructionCompleted) {
                 $currentInstruction = $previousInstruction;
-                $nextStep = $currentInstruction->getNextStep();
-                if ($nextStep->type == InstructionStepEntity::TYPE_TEXT) {
-                    $params[$nextStep->name] = $text;
+                $step = $currentInstruction->getStep();
+                if ($text) {
+                    $params[$step->name] = $text;
                 }
-            } else {
-                $currentInstruction = InstructionModel::getByDisplayName($text, UserService::getCurrent()->role);
+                if ($step->type == InstructionStepEntity::TYPE_NEXT) {
+                    $currentInstruction->nextInstructionStepId = $params[$step->name];
+                }
             }
         }
 
@@ -53,12 +61,18 @@ class CommandService
             ]);
         }
 
-        if ($params && count($params)) {
-            $currentInstruction->appendParams($params);
-        }
         $currentInstruction->chatId = $chatId;
 
-        $command = static::createCommandFromInstruction($currentInstruction);
+        return self::executeInstruction($currentInstruction, $params);
+    }
+
+    public static function executeInstruction(InstructionEntity $instruction, ?array $params): Result
+    {
+        if ($params && count($params)) {
+            $instruction->appendParams($params);
+        }
+        
+        $command = static::createCommandFromInstruction($instruction);
 
         return $command->execute();
     }

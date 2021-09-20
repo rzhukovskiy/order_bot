@@ -54,9 +54,9 @@ class UserService
         $entity = new UserEntity($data);
 
         try {
-            $entity->save();
+            $userId = $entity->save();
             $res = new Result([
-                'message' => "Юзер {$entity->name} изменен",
+                'message' => "Юзер " . UserModel::getById($userId)->name . " изменен",
             ]);
         } catch (Exception $ex) {
             $res = new Result([

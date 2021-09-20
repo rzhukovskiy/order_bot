@@ -106,6 +106,9 @@ class Result
                     return new InlineKeyboardMarkup($array);
                 case InstructionStepEntity::TYPE_METHOD:
                     $result = $this->getResult();
+                    if (!$result) {
+                        return null;
+                    }
                     $array = [[]];
                     foreach ($result as $item) {
                         $array[] = [[

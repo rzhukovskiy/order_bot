@@ -22,12 +22,16 @@ class CreateCommand implements Interfaces\Command
         $nextStep = $this->instruction->getNextStep();
 
         if ($nextStep) {
+            $this->instruction->instructionStepId = $nextStep->id;
             $res = new Result([
                 'message' => $nextStep->description,
                 'step' => $nextStep,
             ]);
 
-            if ($nextStep->type == InstructionStepEntity::TYPE_METHOD) {
+            if (in_array($nextStep->type, [
+                InstructionStepEntity::TYPE_METHOD,
+                InstructionStepEntity::TYPE_END,
+            ])) {
                 $instructionForParam = new InstructionEntity([
                     'method' => $nextStep->content,
                     'params' => $this->instruction->params,
@@ -35,13 +39,15 @@ class CreateCommand implements Interfaces\Command
 
                 $res->merge($instructionForParam->run());
             }
-        } else {
+        }
+        if (!$nextStep || $nextStep->type == InstructionStepEntity::TYPE_END) {
             $res = $this->instruction->run();
 
-            $nextCommandId = $this->instruction->nextId ?: $this->instruction->parentId;
-            $nextCommand = InstructionModel::getById($nextCommandId);
+            $nextInstructionId = $this->instruction->nextId ?: $this->instruction->parentId;
+            $nextInstruction = InstructionModel::getById($nextInstructionId);
+            $nextInstruction->chatId = $this->instruction->chatId;
 
-            $res->merge(CommandService::handleText($nextCommand->name, $res->getResult()));
+            $res->merge(CommandService::executeInstruction($nextInstruction, null));
         }
 
         $this->instruction->saveAsLastInstruction();

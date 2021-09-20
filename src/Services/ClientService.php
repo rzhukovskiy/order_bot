@@ -5,7 +5,9 @@ namespace Orderbot\Services;
 use Exception;
 use Orderbot\Entities\ClientEntity;
 use Orderbot\Models\ClientModel;
+use Orderbot\Models\ClientProductModel;
 use Orderbot\Models\ContactModel;
+use Orderbot\Models\ProductModel;
 use Orderbot\Result;
 
 class ClientService
@@ -16,17 +18,59 @@ class ClientService
      */
     public function create(array $data): Result
     {
-        $client = new ClientEntity($data);
+        $message = "Клиент {$data['name']} создан\n Адрес: {$data['address']}\n";
+        $message .= "Контакт: {$data['contact']} ({$data['phone']})";
+
+        return new Result([
+            'message' => $message,
+        ]);
+    }
+
+    /**
+     * @param array $data
+     * @return Result
+     */
+    public function product(array $data): Result
+    {
+        $productId = null;
+        $productPrice = null;
+        if (isset($data['product'])) {
+            $productId = $data['product'];
+            $productPrice = $data['price'];
+        }
+        unset($data['product'], $data['price'], $data['next_id']);
+
         try {
-            $client->save();
+            $client = ClientModel::getByName($data['name']);
+            if($client) {
+                $clientId = $client->id;
+            } else {
+                $client = new ClientEntity($data);
+                $clientId = $client->save();
+            }
+
+            if ($productId) {
+                print_r([
+                    'client_id' => $clientId,
+                    'product_id' => $productId,
+                    'price' => $productPrice,
+                ]);
+                ClientProductModel::save([
+                    'client_id' => $clientId,
+                    'product_id' => $productId,
+                    'price' => $productPrice,
+                ]);
+            }
+
             $res = new Result([
-                'message' => "Клиент {$client->name} создан",
+                'result' => ProductModel::getAllActive(),
             ]);
         } catch (Exception $ex) {
             $res = new Result([
                 'message' => "Что-то наебнулось: {$ex->getMessage()}",
             ]);
         }
+
         return $res;
     }
 
@@ -52,7 +96,24 @@ class ClientService
             return $res;
         }
 
-        unset($data['search'], $data['search_value'], $data['next_id']);
+        if (isset($data['client_product_id'])) {
+            try {
+                $product = ClientProductModel::getById($data['client_product_id']);
+                $product->price = $data['price'];
+                $product->save();
+                $res = new Result([
+                    'message' => "Цена товара изменена",
+                ]);
+            } catch (Exception $ex) {
+                $res = new Result([
+                    'message' => "Что-то наебнулось: {$ex->getMessage()}",
+                ]);
+            }
+
+            return $res;
+        }
+
+        unset($data['search'], $data['search_value'], $data['next_id'], $data['client_product_id'], $data['price']);
         $client = new ClientEntity($data);
 
         try {
@@ -66,6 +127,17 @@ class ClientService
             ]);
         }
         return $res;
+    }
+
+    /**
+     * @param array $data
+     * @return Result
+     */
+    public function price(array $data): Result
+    {
+        return new Result([
+            'result' => ClientProductModel::getByClientId($data['id']),
+        ]);
     }
 
     /**

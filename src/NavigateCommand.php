@@ -23,7 +23,7 @@ class NavigateCommand implements Interfaces\Command
 
         return new Result([
             'is_main' => !$this->instruction->parentId,
-            'message' => 'Что делаем',
+            'message' => 'Что делаем?',
             'result' => InstructionModel::getByParentAndRole(
                 $this->instruction->id,
                 UserService::getCurrent()->role

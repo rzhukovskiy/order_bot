@@ -20,4 +20,5 @@ class InstructionStepEntity extends BaseEntity
     const TYPE_LIST   = 2;
     const TYPE_METHOD = 3;
     const TYPE_NEXT   = 4;
+    const TYPE_END    = 5;
 }

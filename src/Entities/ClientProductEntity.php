@@ -4,32 +4,24 @@ namespace Orderbot\Entities;
 
 use Orderbot\BaseEntity;
 use Orderbot\Interfaces\SearchResult;
-use Orderbot\Models\ProductModel;
+use Orderbot\Models\ClientProductModel;
 
 /**
  * @property int $id
  * @property int $price
- * @property string $name
- * @property int $isActive
+ * @property int $productId
+ * @property int $clientId
+ * @property int $name
  */
-class ProductEntity extends BaseEntity implements SearchResult
+class ClientProductEntity extends BaseEntity implements SearchResult
 {
     /**
      * @return int
      */
     public function save(): int
     {
-        $this->id = ProductModel::save($this->data);
-
-        return $this->id;
-    }
-    /**
-     * @return int
-     */
-    public function delete(): int
-    {
-        $this->isActive = 0;
-        $this->id = ProductModel::save($this->data);
+        $this->deleteProperty('name');
+        $this->id = ClientProductModel::save($this->data);
 
         return $this->id;
     }

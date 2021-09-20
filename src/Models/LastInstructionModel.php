@@ -14,7 +14,7 @@ class LastInstructionModel extends BaseModel
      * @param int $chatId
      * @return InstructionEntity
      */
-    public static function getByChatId($chatId)
+    public static function getByChatId(int $chatId): ?InstructionEntity
     {
         $stmt = self::$pdo->prepare("SELECT * FROM " . self::$nameTable .
             " WHERE chat_id = :chat_id ORDER BY created_at DESC");
@@ -30,6 +30,7 @@ class LastInstructionModel extends BaseModel
                 $res->appendParamsFromString($row['params']);
             }
             $res->completed = $row['completed'];
+            $res->instructionStepId = $row['instruction_step_id'];
         }
 
         return $res;

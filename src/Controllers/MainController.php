@@ -21,15 +21,12 @@ class MainController extends BaseController
 
             //Handle text messages
             $bot->on(function (Update $update) use ($bot) {
-                Request::init($update);
+                $request = new Request($update);
 
-                $result = CommandService::handleText(
-                    Request::extractText(),
-                    Request::extractParams()
-                );
+                $result = CommandService::handleRequest($request);
 
                 $bot->sendMessage(
-                    Request::extractChatId(),
+                    $request->extractChatId(),
                     $result->getMessage(),
                     null,
                     false,

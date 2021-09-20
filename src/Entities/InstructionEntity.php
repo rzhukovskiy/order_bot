@@ -12,6 +12,8 @@ use Orderbot\Result;
  * @property integer    $chatId
  * @property integer    $parentId
  * @property integer    $nextId
+ * @property integer    $instructionStepId
+ * @property integer    $nextInstructionStepId
  * @property integer    $type
  * @property string     $name
  * @property string     $displayName
@@ -43,29 +45,20 @@ class InstructionEntity extends BaseEntity
         list($method, $className) = explode('_', $this->method);
         $fullClassName = 'Orderbot\\Services\\' . ucfirst($className) . 'Service';
         $obj = new $fullClassName($this->params);
-        $res = $obj->{$method}($this->params);
         $this->completed = true;
-
-        return $res;
+        return $obj->{$method}($this->params);
     }
 
     /**
-     * @return InstructionStepEntity
+     * @return InstructionStepEntity|null
      */
-    private function getLastStep(): ?InstructionStepEntity
+    public function getStep(): ?InstructionStepEntity
     {
-        $res = null;
-        $lastParamId = count($this->params) - 1;
-
-        if ($lastParamId >= 0) {
-            $name = array_keys($this->params)[$lastParamId];
-            $res = InstructionStepModel::getByName($this->id, $name);
-            if ($res->type == InstructionStepEntity::TYPE_NEXT) {
-                $res->nextId = $this->params[$name];
-            }
+        if ($this->instructionStepId) {
+            return InstructionStepModel::getById($this->instructionStepId);
+        } else {
+            return InstructionStepModel::getFirst($this->id);
         }
-
-        return $res;
     }
 
     /**
@@ -73,11 +66,15 @@ class InstructionEntity extends BaseEntity
      */
     public function getNextStep(): ?InstructionStepEntity
     {
-        $step = $this->getLastStep();
-        if ($step) {
-            return InstructionStepModel::getById($step->nextId);
+        if ($this->nextInstructionStepId) {
+            return InstructionStepModel::getById($this->nextInstructionStepId);
         } else {
-            return InstructionStepModel::getFirst($this->id);
+            if ($this->instructionStepId) {
+                $step = InstructionStepModel::getById($this->instructionStepId);
+                return $step ? InstructionStepModel::getById($step->nextId) : null;
+            } else {
+                return InstructionStepModel::getFirst($this->id);
+            }
         }
     }
 
@@ -92,6 +89,7 @@ class InstructionEntity extends BaseEntity
             'params' => serialize($this->params),
             'created_at' => time(),
             'completed' => $this->completed,
+            'instruction_step_id' => $this->instructionStepId,
         ];
         return LastInstructionModel::save($dataToSave);
     }
