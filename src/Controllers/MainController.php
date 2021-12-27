@@ -21,7 +21,7 @@ class MainController extends BaseController
     public function actionIndex()
     {
         try {
-            $bot = new Client('1978286443:AAE67AlmMdcbCHMCIgZ-yEM-mcNsOJaAips');
+            $bot = new Client('');
 
             //Handle text messages
             $bot->on(function (Update $update) use ($bot) {
