@@ -1,29 +1,27 @@
-# README #
+# Test task for PHP devloper role
 
-This README would normally document whatever steps are necessary to get your application up and running.
+## Installation
 
-### What is this repository for? ###
+1. Clone this repo using:
+  ```shell
+  $ git clone git@github.com:rzhukovskiy/order_bot.git
+  ```
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+2. To install dependencies and clean the git repo run:
 
-### How do I get set up? ###
+  ```shell
+  $ composer install
+  ```
+  
+3. Fill telegram credentials in bot constructor
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+## Description
 
-### Contribution guidelines ###
+Simple CRM system realized as telegram bot. User can send commands to bot to manipulate orders, clients, stocks, etc.
+Application was made with vanilla PHP. Without web interface.
+  
+## Stack and tools
 
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+* PHP
+* MySQL
+* telegram-bot/api
