@@ -23,5 +23,5 @@ Application was made with vanilla PHP. Without web interface.
 ## Stack and tools
 
 * PHP
-* MySQL
+* MySQL (PDO)
 * telegram-bot/api
